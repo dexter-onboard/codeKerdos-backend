@@ -1,4 +1,4 @@
-import { Controller, Post, Body, UseGuards, Request, Get, Req, Res } from '@nestjs/common';
+import { Controller, Post, Body, UseGuards, Request, Get, Req, Res, Param, Put } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { JwtAuthGuard } from './jwt.guard';
 import { AuthGuard } from '@nestjs/passport';
@@ -36,4 +36,21 @@ export class AuthController {
     // You can handle the user object here, e.g., create a JWT token and send it to the client
     res.redirect(`http://localhost:3000/success?user=${JSON.stringify(user)}`);
   }
+
+
+  @Get(':id/courses')
+  async getUserCourses(@Param('id') id: string) {
+    return this.authService.getUserCourses(id);
+  }
+
+  @Put(':id/courses/:courseId')
+  async assignCourseToUser(@Param('id') userId: string, @Param('courseId') courseId: string) {
+    return this.authService.assignCourseToUser(courseId, userId);
+  }
+
+  @Get(':id')
+  async getUserInfo(@Param('id') id: string) {
+    return this.authService.getUserInfo(id);
+  }
+
 }

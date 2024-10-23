@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { User, UserDocument } from '../database/models/user.schema';
 
 @Injectable()
@@ -25,11 +25,35 @@ export class AuthService {
       return { message: 'Invalid credentials' };
     }
     const payload = { username: user.username };
-    const token = this.jwtService.sign(payload);
+    const token = this.jwtService.sign(payload, {secret: process.env.JWT_SECRET});
     return { token };
   }
 
   async validateUser(username: string, password: string): Promise<any> {
     return this.userModel.findOne({ username, password }).exec();
   }
+
+
+  async assignCourseToUser(courseId: string, userId: string) {
+    const user = await this.userModel.findById(userId).exec();
+
+    if( user.courses) {
+      user.courses.push(new Types.ObjectId(courseId));
+    } else {
+      user.courses = [];
+      user.courses.push(new Types.ObjectId(courseId));
+    }
+    return user.save();
+  }
+
+  async getUserCourses(userId: string) {
+    const user = await this.userModel.findById(userId).exec();
+    return user.courses;
+  }
+
+  async getUserInfo(userId: string) {
+    return this.userModel.findById(userId).exec();
+  }
+
 }
+
